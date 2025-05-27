@@ -1,0 +1,134 @@
+
+  
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simple Student Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: white;
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #005a9e;
+        }
+        #message {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+    <!-- Firebase App (core) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <!-- Firebase Realtime Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script>
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAAgOoqCdL_rFfj92Ntm1NFAT_xdzmXZuk",
+    authDomain: "developer-a8318.firebaseapp.com",
+    databaseURL: "https://developer-a8318-default-rtdb.firebaseio.com",
+    projectId: "developer-a8318",
+    storageBucket: "developer-a8318.firebasestorage.app",
+    messagingSenderId: "121489662282",
+    appId: "1:121489662282:web:d59c53a14ac51df75921b3",
+    measurementId: "G-7QNG2VLNME"
+  };
+ 
+ 
+ 
+ 
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Student Form</h2>
+        <form id="studentForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required />
+
+            <label for="rollNumber">Roll Number:</label>
+            <input type="text" id="rollNumber" name="rollNumber" required />
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required />
+
+            <button type="submit">Submit</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script>
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = "Submitting...";
+
+            const name = this.name.value.trim();
+            const rollNumber = this.rollNumber.value.trim();
+            const email = this.email.value.trim();
+
+            const newKey = database.ref().child('students').push().key;
+            const updates = {};
+            updates['/students/' + newKey] = { name, rollNumber, email, submittedAt: new Date().toISOString() };
+
+            database.ref().update(updates)
+                .then(() => {
+                    messageDiv.style.color = 'green';
+                    messageDiv.textContent = "Form submitted successfully!";
+                    this.reset();
+                })
+                .catch((error) => {
+                    messageDiv.style.color = 'red';
+                    messageDiv.textContent = "Submission failed. Please try again.";
+                    console.error(error);
+                });
+        });
+    </script>
+</body>
+</html>
