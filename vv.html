@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login & Signup with Firebase</title>
+</head>
+<body>
+  <h2>Sign Up</h2>
+  <form id="signup-form">
+    <input type="email" id="signup-email" placeholder="Email" required><br>
+    <input type="password" id="signup-password" placeholder="Password" required><br>
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <h2>Login</h2>
+  <form id="login-form">
+    <input type="email" id="login-email" placeholder="Email" required><br>
+    <input type="password" id="login-password" placeholder="Password" required><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="message"></p>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAksQGCh4QFxhhzxKTP1qlfs11plObgSdU",
+      authDomain: "web-project-5d413.firebaseapp.com",
+      projectId: "web-project-5d413",
+      storageBucket: "web-project-5d413.firebasestorage.app",
+      messagingSenderId: "363752392884",
+      appId: "1:363752392884:web:6ad86b5445517b1cf8afe1",
+      measurementId: "G-1HX2PBFHYP"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth();
+
+    // Signup
+    const signupForm = document.getElementById('signup-form');
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          document.getElementById('message').innerText = "Signup successful!";
+          console.log("Signup success:", userCredential);
+        })
+        .catch((error) => {
+          document.getElementById('message').innerText = `Signup error: ${error.message}`;
+          console.error("Signup error:", error);
+        });
+    });
+
+    // Login
+    const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          document.getElementById('message').innerText = "Login successful!";
+          console.log("Login success:", userCredential);
+        })
+        .catch((error) => {
+          document.getElementById('message').innerText = `Login error: ${error.message}`;
+          console.error("Login error:", error);
+        });
+    });
+  </script>
+</body>
+</html>
