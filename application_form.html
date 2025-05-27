@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Application Form with Vue.js and Firebase</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="url"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    textarea {
+      resize: vertical;
+    }
+    input[type="file"] {
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Application Form</h1>
+  <div id="app">
+    <form @submit.prevent="submitForm">
+      <label for="name">Name</label>
+      <input type="text" id="name" v-model="form.name" required />
+
+      <label for="fatherName">Father Name</label>
+      <input type="text" id="fatherName" v-model="form.fatherName" required />
+
+      <label for="motherName">Mother Name</label>
+      <input type="text" id="motherName" v-model="form.motherName" required />
+
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" v-model="form.phone" required pattern="\\d{10}" title="Enter 10 digit phone number" />
+
+      <label for="marks10">10th Marks (%)</label>
+      <input type="number" id="marks10" v-model.number="form.marks10" min="0" max="100" required />
+
+      <label for="marks12">12th Marks (%)</label>
+      <input type="number" id="marks12" v-model.number="form.marks12" min="0" max="100" required />
+
+      <label for="graduationMarks">Graduation Marks (%)</label>
+      <input type="number" id="graduationMarks" v-model.number="form.graduationMarks" min="0" max="100" required />
+
+      <label for="resume">Resume (PDF)</label>
+      <input type="file" id="resume" @change="handleFileUpload" accept=".pdf" required />
+
+      <label for="skills">Skills</label>
+      <textarea id="skills" v-model="form.skills" placeholder="List your skills separated by commas" required></textarea>
+
+      <label for="certifications">Certifications</label>
+      <textarea id="certifications" v-model="form.certifications" placeholder="List your certifications separated by commas"></textarea>
+
+      <label for="linkedin">LinkedIn Profile Link</label>
+      <input type="url" id="linkedin" v-model="form.linkedin" placeholder="https://linkedin.com/in/yourprofile" />
+
+      <label for="github">GitHub Profile Link</label>
+      <input type="url" id="github" v-model="form.github" placeholder="https://github.com/yourprofile" />
+
+      <label for="experience">Experience (years)</label>
+      <input type="number" id="experience" v-model.number="form.experience" min="0" max="50" required />
+
+      <button type="submit" :disabled="loading">{{ loading ? 'Submitting...' : 'Submit' }}</button>
+    </form>
+    <div class="message" :style="{ color: messageColor }">{{ message }}</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAksQGCh4QFxhhzxKTP1qlfs11plObgSdU",
+      authDomain: "web-project-5d413.firebaseapp.com",
+      projectId: "web-project-5d413",
+      storageBucket: "web-project-5d413.appspot.com",
+      messagingSenderId: "363752392884",
+      appId: "1:363752392884:web:6ad86b5445517b1cf8afe1",
+      measurementId: "G-1HX2PBFHYP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          form: {
+            name: '',
+            fatherName: '',
+            motherName: '',
+            phone: '',
+            marks10: null,
+            marks12: null,
+            graduationMarks: null,
+            resumeFile: null,
+            skills: '',
+            certifications: '',
+            linkedin: '',
+            github: '',
+            experience: null
+          },
+          loading: false,
+          message: '',
+          messageColor: 'red'
+        };
+      },
+      methods: {
+        handleFileUpload(event) {
+          this.form.resumeFile = event.target.files[0];
+        },
+        async submitForm() {
+          if (!this.form.resumeFile) {
+            this.message = "Please upload your resume.";
+            this.messageColor = "red";
+            return;
+          }
+          this.loading = true;
+          this.message = '';
+          try {
+            // Upload resume to Firebase Storage
+            const storageRef = ref(storage, 'resumes/' + this.form.resumeFile.name);
+            await uploadBytes(storageRef, this.form.resumeFile);
+            const resumeURL = await getDownloadURL(storageRef);
+
+            // Prepare data to save
+            const dataToSave = {
+              name: this.form.name,
+              fatherName: this.form.fatherName,
+              motherName: this.form.motherName,
+              phone: this.form.phone,
+              marks10: this.form.marks10,
+              marks12: this.form.marks12,
+              graduationMarks: this.form.graduationMarks,
+              resumeURL: resumeURL,
+              skills: this.form.skills.split(',').map(s => s.trim()),
+              certifications: this.form.certifications ? this.form.certifications.split(',').map(c => c.trim()) : [],
+              linkedin: this.form.linkedin,
+              github: this.form.github,
+              experience: this.form.experience,
+              submittedAt: new Date()
+            };
+
+            // Save data to Firestore
+            await addDoc(collection(db, 'applications'), dataToSave);
+
+            this.message = "Application submitted successfully!";
+            this.messageColor = "green";
+            this.resetForm();
+          } catch (error) {
+            this.message = "Error submitting application: " + error.message;
+            this.messageColor = "red";
+          } finally {
+            this.loading = false;
+          }
+        },
+        resetForm() {
+          this.form = {
+            name: '',
+            fatherName: '',
+            motherName: '',
+            phone: '',
+            marks10: null,
+            marks12: null,
+            graduationMarks: null,
+            resumeFile: null,
+            skills: '',
+            certifications: '',
+            linkedin: '',
+            github: '',
+            experience: null
+          };
+          // Reset file input manually
+          const fileInput = document.getElementById('resume');
+          if (fileInput) fileInput.value = '';
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
