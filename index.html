@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smatter Institution - Single Page</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <div id="app">
+        <header>
+            <img src="logo.jpg" alt="Smatter Institution Logo" class="logo" />
+            <h1>Smatter Institution</h1>
+            <nav>
+                <button @click="currentPage = 'home'">Home</button>
+                <button @click="currentPage = 'about'">About</button>
+                <button @click="currentPage = 'login'">Login</button>
+                <button @click="currentPage = 'signup'">Sign Up</button>
+                <button @click="currentPage = 'contact'">Contact Us</button>
+            </nav>
+        </header>
+        <marquee class="marquee" behavior="scroll" direction="left" scrollamount="6">
+            Welcome to Smatter Institution - Empowering Education and Innovation!
+        </marquee>
+        <main>
+            <section v-show="currentPage === 'home'">
+                <h2>Home</h2>
+                <p>Smatter Institution is dedicated to providing quality education and resources to empower students and foster lifelong learning.</p>
+                <ul>
+                    <li>Committed to academic excellence and innovation.</li>
+                    <li>Offers diverse programs across multiple disciplines.</li>
+                    <li>Experienced and dedicated faculty members.</li>
+                    <li>State-of-the-art facilities and learning resources.</li>
+                    <li>Focus on research and community engagement.</li>
+                    <li>Supportive environment for student growth and success.</li>
+                    <li>Strong alumni network and industry connections.</li>
+                    <li>Emphasis on ethical values and social responsibility.</li>
+                    <li>Encourages lifelong learning and professional development.</li>
+                    <li>Dedicated to fostering a diverse and inclusive community.</li>
+                </ul>
+                <div class="home-images">
+                    <div class="image-item">
+                        <h3>Hostel</h3>
+                        <img src="hoste.jpg" alt="Hostel" />
+                        <p class>Comfortable and secure accommodation for students with modern amenities and 24/7 security.</p>
+                    </div>
+                    <div class="image-item">
+                        <h3>Canteen</h3>
+                        <img src="canteeen.jpg" alt="Canteen" />
+                        <p>Clean and hygienic dining area offering a variety of nutritious meals.</p>
+                    </div>
+                    <div class="image-item">
+                        <h3>Buses</h3>
+                        <img src="buses.jpg" alt="Buses" />
+                        <p>Reliable transportation services connecting campus with key city locations.</p>
+                    </div>
+                    <div class="image-item">
+                        <h3>Department</h3>
+                        <img src="department.jpg" alt="Department" />
+                        <p class=>State-of-the-art academic departments equipped with latest technology and research facilities.</p>
+                    </div>
+                   
+                </div>
+            </section>
+            <section v-show="currentPage === 'about'">
+                <h2>About Us</h2>
+                <p>Smatter Institution is a forward-thinking educational organization focused on holistic development.</p>
+                <ul>
+                    <li>Founded in 1990 with a mission to transform education.</li>
+                    <li>Offers cutting-edge technology and science programs.</li>
+                    <li>Strong emphasis on arts and cultural development.</li>
+                    <li>Collaborates with international universities and organizations.</li>
+                    <li>Provides scholarships and financial aid to deserving students.</li>
+                    <li>Hosts annual conferences and workshops for knowledge sharing.</li>
+                    <li>Committed to sustainability and environmental responsibility.</li>
+                    <li>Encourages student entrepreneurship and innovation.</li>
+                    <li>Active community service and outreach programs.</li>
+                    <li>Dedicated to creating leaders for the future.</li>
+                </ul>
+            </section>
+            <section v-show="currentPage === 'login'">
+                <h2>Login</h2>
+                <form action="php/login.php" method="POST" class="login-form">
+                    <label for="username">Username:</label><br />
+                    <input type="text" id="username" name="username" required /><br />
+                    <label for="password">Password:</label><br />
+                    <input type="password" id="password" name="password" required /><br /><br />
+                    <button type="submit">Login</button>
+                </form>
+                <div class="login-attractions">
+                    <h3>Login Tips</h3>
+                    <p>Ensure your password is strong and keep it confidential. Contact support if you face any issues logging in.</p>
+                </div>
+            </section>
+            <section v-show="currentPage === 'contact'">
+                <h2>Contact Us</h2>
+                <form @submit.prevent="submitContact">
+                    <label for="name">Name:</label><br />
+                    <input type="text" id="name" v-model="contact.name" required /><br />
+                    <label for="email">Email:</label><br />
+                    <input type="email" id="email" v-model="contact.email" required /><br />
+                    <label for="message">Message:</label><br />
+                    <textarea id="message" v-model="contact.message" required></textarea><br /><br />
+                    <button type="submit">Send</button>
+                </form>
+                <p v-if="contactMessage">{{ contactMessage }}</p>
+            </section>
+            <section v-show="currentPage === 'signup'">
+                <h2>Sign Up</h2>
+                <form action="php/signup.php" method="POST">
+                    <label for="signup-username">Username:</label><br />
+                    <input type="text" id="signup-username" name="username" required /><br />
+                    <label for="signup-email">Email:</label><br />
+                    <input type="email" id="signup-email" name="email" required /><br />
+                    <label for="signup-password">Password:</label><br />
+                    <input type="password" id="signup-password" name="password" required /><br />
+                    <label for="signup-confirm-password">Confirm Password:</label><br />
+                    <input type="password" id="signup-confirm-password" name="confirmPassword" required /><br /><br />
+                    <button type="submit">Sign Up</button>
+                </form>
+            </section>
+                </main>
+      
+        <footer>
+            <p>&copy; 2024 Smatter Institution</p>
+            <div class="footer-links">  
+                <a href="https://www.smatter.edu/admissions" target="_blank" rel="noopener noreferrer">Admissions</a> |
+                <a href="https://www.smatter.edu/research" target="_blank" rel="noopener noreferrer">Research</a> |
+                <a href="https://www.smatter.edu/alumni" target="_blank" rel="noopener noreferrer">Alumni</a>
+            </div>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
